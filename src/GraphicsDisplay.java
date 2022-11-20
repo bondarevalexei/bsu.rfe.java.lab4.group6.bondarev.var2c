@@ -179,7 +179,7 @@ public class GraphicsDisplay extends JPanel {
         canvas.setColor(java.awt.Color.BLACK);
         canvas.setFont(this.axisFont);
         FontRenderContext context=canvas.getFontRenderContext();
-        if (!(viewport[0][0] > 0|| viewport[1][0] < 0)){
+        if (!(viewport[0][0] > 0 && viewport[1][0] < 0)){
             canvas.draw(new Line2D.Double(xyToPoint(0, viewport[0][1]),
                     xyToPoint(0, viewport[1][1])));
             canvas.draw(new Line2D.Double(xyToPoint(-(viewport[1][0] - viewport[0][0]) * 0.0025,
@@ -191,7 +191,7 @@ public class GraphicsDisplay extends JPanel {
             Point2D.Double labelPos = xyToPoint(0.0, viewport[0][1]);
             canvas.drawString("y",(float)labelPos.x + 10,(float)(labelPos.y + bounds.getHeight() / 2));
         }
-        if (!(viewport[1][1] > 0.0D || viewport[0][1] < 0.0D)){
+        if (!(viewport[1][1] > 0.0D && viewport[0][1] < 0.0D)){
             canvas.draw(new Line2D.Double(xyToPoint(viewport[0][0],0),
                     xyToPoint(viewport[1][0],0)));
             canvas.draw(new Line2D.Double(xyToPoint(viewport[1][0] - (viewport[1][0] - viewport[0][0]) * 0,
@@ -390,32 +390,8 @@ public class GraphicsDisplay extends JPanel {
         repaint();
     }
 
-    // rotate90right
-    public boolean isClockRotate() {
-        return clockRotate;
-    }
-
-    // rotate90left
-    public boolean isAntiClockRotate() {
-        return antiClockRotate;
-    }
-
     // Сбрасываем изменения
     public void reset() {
         showGraphics(this.originalData);
     }
-
-    //zoom
-    protected int findSelectedPoint(int x, int y)
-    {
-        if (graphicsData == null) return -1;
-        int pos = 0;
-        for (Double[] point : graphicsData) {
-            Point2D.Double screenPoint = xyToPoint(point[0].doubleValue(), point[1].doubleValue());
-            double distance = (screenPoint.getX() - x) * (screenPoint.getX() - x) + (screenPoint.getY() - y) * (screenPoint.getY() - y);
-            if (distance < 100) return pos;
-            pos++;
-        }	    return -1;
-    }
-
 }
