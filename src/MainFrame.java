@@ -38,7 +38,7 @@ public class MainFrame extends JFrame {
         setSize(WIDTH, HEIGHT);
         Toolkit kit = Toolkit.getDefaultToolkit();
         setLocation((kit.getScreenSize().width - WIDTH)/2, (kit.getScreenSize().height - HEIGHT)/2);
-        //setExtendedState(MAXIMIZED_BOTH);
+        setExtendedState(MAXIMIZED_BOTH);
 
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
@@ -118,8 +118,8 @@ public class MainFrame extends JFrame {
         try {
             DataInputStream in = new DataInputStream(new FileInputStream(selectedFile));
             while (in.available() > 0) {
-                Double x = Double.valueOf(in.readDouble());
-                Double y = Double.valueOf(in.readDouble());
+                double x = in.readDouble();
+                double y = in.readDouble();
                 graphicsData.add(new Double[] { x, y });
             }
             if (graphicsData.size() > 0) {
