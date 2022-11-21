@@ -6,10 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Stroke;
 import java.awt.font.FontRenderContext;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -304,7 +301,10 @@ public class GraphicsDisplay extends JPanel {
         Paint oldPaint = canvas.getPaint();
 
         if (rotateLeft) {
-            canvas.rotate(Math.toRadians(-90), (float) getWidth() / 2, (float) getHeight() / 2);
+            AffineTransform at = AffineTransform.getRotateInstance(-Math.PI/2, getSize().getWidth()/2, getSize().getHeight()/2);
+            at.concatenate(new AffineTransform(getSize().getHeight()/getSize().getWidth(), 0.0, 0.0, getSize().getWidth()/getSize().getHeight(),
+                    (getSize().getWidth()-getSize().getHeight())/2, (getSize().getHeight()-getSize().getWidth())/2));
+            canvas.setTransform(at);
         }
         if (showGrid)
             paintGrid(canvas);
