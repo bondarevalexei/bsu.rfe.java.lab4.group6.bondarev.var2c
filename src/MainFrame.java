@@ -24,7 +24,7 @@ public class MainFrame extends JFrame {
 
     private ArrayList graphicsData = new ArrayList(50);
     private final int HEIGHT = 600;
-    private final int WIDTH = 600;
+    private final int WIDTH = 800;
     private boolean fileLoaded = false;
     private GraphicsDisplay display = new GraphicsDisplay();
     private JCheckBoxMenuItem showAxisMenuItem;
@@ -63,7 +63,7 @@ public class MainFrame extends JFrame {
 
         Action rotatesShapeAntiClockAction = new AbstractAction("Повернуть на 90 влево") {
             public void actionPerformed(ActionEvent e) {
-                display.setAntiClockRotate(shapeRotateAntiClockItem.isSelected());
+                display.setRotateLeft(shapeRotateAntiClockItem.isSelected());
             }
         };
         shapeRotateAntiClockItem = new JCheckBoxMenuItem(rotatesShapeAntiClockAction);
