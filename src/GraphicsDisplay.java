@@ -85,11 +85,11 @@ public class GraphicsDisplay extends JPanel {
         zoomToRegion(minX, maxY, maxX, minY);
     }
 
-    public void zoomToRegion(double x1, double y1, double x2, double y2) {
-        this.viewport[0][0] = x1;
-        this.viewport[0][1] = y1;
-        this.viewport[1][0] = x2;
-        this.viewport[1][1] = y2;
+    public void zoomToRegion(double minx, double maxy, double maxx, double miny) {
+        this.viewport[0][0] = minx;
+        this.viewport[0][1] = maxy;
+        this.viewport[1][0] = maxx;
+        this.viewport[1][1] = miny;
         this.repaint();
     }
 
@@ -109,8 +109,8 @@ public class GraphicsDisplay extends JPanel {
     }
 
     protected Point2D.Double xyToPoint(double x, double y) {
-        double deltaX = x - viewport[0][0];
-        double deltaY = viewport[0][1] - y;
+        double deltaX = x - this.minX;
+        double deltaY = this.maxY - y;
         return new Point2D.Double(deltaX * scaleX, deltaY * scaleY);
     }
 
@@ -118,23 +118,22 @@ public class GraphicsDisplay extends JPanel {
         canvas.setStroke(gridStroke);
         canvas.setColor(Color.GRAY);
 
-        double pos = viewport[0][0];
-        ;
-        double step = (viewport[1][0] - viewport[0][0]) / 10;
+        double pos = this.minX;
+        double step = (this.maxX - this.minX) / 10;
 
-        while (pos < viewport[1][0]) {
-            canvas.draw(new Line2D.Double(xyToPoint(pos, viewport[0][1]), xyToPoint(pos, viewport[1][1])));
+        while (pos < this.maxX) {
+            canvas.draw(new Line2D.Double(xyToPoint(pos, this.maxY), xyToPoint(pos, this.minY)));
             pos += step;
         }
-        canvas.draw(new Line2D.Double(xyToPoint(viewport[1][0], viewport[0][1]), xyToPoint(viewport[1][0], viewport[1][1])));
+        canvas.draw(new Line2D.Double(xyToPoint(this.maxX, this.maxY), xyToPoint(this.maxX, this.minY)));
 
-        pos = viewport[1][1];
-        step = (viewport[0][1] - viewport[1][1]) / 10;
-        while (pos < viewport[0][1]) {
-            canvas.draw(new Line2D.Double(xyToPoint(viewport[0][0], pos), xyToPoint(viewport[1][0], pos)));
+        pos = this.minY;
+        step = (this.maxY - this.minY) / 10;
+        while (pos < this.maxY) {
+            canvas.draw(new Line2D.Double(xyToPoint(this.minX, pos), xyToPoint(this.maxX, pos)));
             pos = pos + step;
         }
-        canvas.draw(new Line2D.Double(xyToPoint(viewport[0][0], viewport[0][1]), xyToPoint(viewport[1][0], viewport[0][1])));
+        canvas.draw(new Line2D.Double(xyToPoint(this.minX, this.maxY), xyToPoint(this.maxX, this.maxY)));
     }
 
     protected void paintGraphics(Graphics2D canvas) {
@@ -144,8 +143,8 @@ public class GraphicsDisplay extends JPanel {
         Double currentX = null;
         Double currentY = null;
         for (Double[] point : this.graphicsData) {
-            if ((point[0] >= this.viewport[0][0]) && (point[1] <= this.viewport[0][1]) &&
-                    (point[0] <= this.viewport[1][0]) && (point[1] >= this.viewport[1][1])) {
+            if ((point[0] >= this.minX) && (point[1] <= this.maxY) &&
+                    (point[0] <= this.maxX) && (point[1] >= this.minY)){
                 if ((currentX != null) && (currentY != null)) {
                     canvas.draw(new Line2D.Double(xyToPoint(currentX, currentY),
                             xyToPoint(point[0], point[1])));
@@ -182,7 +181,7 @@ public class GraphicsDisplay extends JPanel {
                     -(viewport[0][1] - viewport[1][1]) * 0.005), xyToPoint(viewport[1][0], 0)));
             Rectangle2D bounds = axisFont.getStringBounds("x", context);
             Point2D.Double labelPos = xyToPoint(this.viewport[1][0], 0.0D);
-            canvas.drawString("x", (float) (labelPos.x - bounds.getWidth() - 10), (float) (labelPos.y - bounds.getHeight() / 2));
+            canvas.drawString("x", (float) (labelPos.x - (bounds.getWidth()/2) - 10), (float) (labelPos.y - bounds.getHeight() / 2));
         }
     }
 
@@ -256,24 +255,24 @@ public class GraphicsDisplay extends JPanel {
         FontRenderContext context = canvas.getFontRenderContext();
         double labelYPos;
         double labelXPos;
-        if (!(viewport[1][1] >= 0 || viewport[0][1] <= 0))
+        if (!(this.minY >= 0 || this.maxY <= 0))
             labelYPos = 0;
-        else labelYPos = viewport[1][1];
-        if (!(viewport[0][0] >= 0 || viewport[1][0] <= 0.0D))
+        else labelYPos = this.minY;
+        if (!(this.minX >= 0 || this.maxX <= 0.0D))
             labelXPos = 0;
-        else labelXPos = viewport[0][0];
-        double pos = viewport[0][0];
-        double step = (viewport[1][0] - viewport[0][0]) / 10;
-        while (pos < viewport[1][0]) {
+        else labelXPos = this.minX;
+        double pos = this.minX;
+        double step = (this.maxX - this.minX) / 10;
+        while (pos < this.maxX) {
             java.awt.geom.Point2D.Double point = xyToPoint(pos, labelYPos);
             String label = formatter.format(pos);
             Rectangle2D bounds = labelsFont.getStringBounds(label, context);
             canvas.drawString(label, (float) (point.getX() + 5), (float) (point.getY() - bounds.getHeight()));
             pos = pos + step;
         }
-        pos = viewport[1][1];
-        step = (viewport[0][1] - viewport[1][1]) / 10.0D;
-        while (pos < viewport[0][1]) {
+        pos = this.minY;
+        step = (this.maxY - this.minY) / 10.0D;
+        while (pos < this.maxY) {
             Point2D.Double point = xyToPoint(labelXPos, pos);
             String label = formatter.format(pos);
             Rectangle2D bounds = labelsFont.getStringBounds(label, context);
@@ -294,8 +293,8 @@ public class GraphicsDisplay extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        scaleX = this.getSize().getWidth() / (this.viewport[1][0] - this.viewport[0][0]);
-        scaleY = this.getSize().getHeight() / (this.viewport[0][1] - this.viewport[1][1]);
+        scaleX = this.getSize().getWidth() / (this.maxX - this.minX);
+        scaleY = this.getSize().getHeight() / (this.maxY - this.minY);
         if ((this.graphicsData == null) || (this.graphicsData.size() == 0)) return;
 
         Graphics2D canvas = (Graphics2D) g;
